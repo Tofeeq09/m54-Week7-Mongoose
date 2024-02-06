@@ -1,10 +1,29 @@
 // Code: Express.js server
 const express = require("express");
 // The require() function is used to load and cache JavaScript modules.
+// The express module is a third-party module that is used to create web servers in Node.js.
+
+// The require("express") statement is used to import the Express.js module into your file.
+// This statement returns a function, which we're storing in the variable express.
+// When you call express(), it creates a new instance of an Express application.
+// This instance is an object that has methods for setting up and controlling the behavior of an Express server.
+// We're storing this instance in the variable app.
+
+// So, app is related to require("express") and express() in the following way:
+// 1. require("express") imports the Express.js module and gives you a function for creating new Express applications.
+// 2. express() calls this function and creates a new Express application.
+// 3. app is the variable where we store this new Express application.
+
+// app is an object because the express() function returns an object.
+// This object has methods for configuring the server, such as app.get(), app.post(), app.use(), and many others.
+// These methods are used to set up routes, middleware, and other server behavior.
+
+// app is an object because it's the most suitable data structure for representing an Express application.
 
 // The express() function is a top-level function exported by the express module.
 const app = express();
 // The express() function is used to create an Express application.
+// The app object is used to configure and start the Express application.
 
 // The database is the repository where data is stored and managed.
 
