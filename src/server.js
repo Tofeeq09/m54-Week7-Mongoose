@@ -89,7 +89,7 @@ app.get("/books/getAllBooks", (req, res) => {
 
 // Define a route handler for POST requests to "/books/addBook"
 
-app.post("/books/addBook", (req, res) => {
+app.post("/books/addBook", authenticateUser, authorizeUser, (req, res) => {
   // app.post() is a method provided by Express.js to handle HTTP POST requests.
   // The first parameter is the URL path, and the second parameter is the route handler function.
   // The route handler function takes two parameters: the request object (req) and the response object (res).
@@ -165,7 +165,7 @@ app.post("/books/addBook", (req, res) => {
 
 // Define a route handler for PUT requests to "/books/updateBook"
 
-app.put("/books/updateBook", (req, res) => {
+app.put("/books/updateBook", authenticateUser, authorizeUser, (req, res) => {
   // The app.put() function is used to define a route handler for PUT requests.
   // The first parameter is the URL path, and the second parameter is the route handler function.
   // The route handler function takes two parameters: the request object (req) and the response object (res).
@@ -251,7 +251,7 @@ app.put("/books/updateBook", (req, res) => {
 
 // Define a route handler for DELETE requests to "/books/deleteBook"
 
-app.delete("/books/deleteBook", (req, res) => {
+app.delete("/books/deleteBook", authenticateUser, authorizeUser, (req, res) => {
   // The app.delete() function is used to define a route handler for DELETE requests.
   // The first parameter is the URL path, and the second parameter is the route handler function.
   // The route handler function takes two parameters: the request object (req) and the response object (res).
@@ -392,39 +392,29 @@ app.listen(5001, () => {
 // This ensures that only authenticated and authorized users can access these routes and modify the booksArray.
 
 // login and password can be used for the middleware function to authenticate and authorize users.
-// const users = [
-//   { username: "admin", password: "admin", role: "admin" },
-//   { username: "user", password: "user", role: "user" },
-// ];
+const users = [
+  { username: "admin", password: "admin", role: "admin" },
+  { username: "user", password: "user", role: "user" },
+];
 
-// const authenticateUser = (req, res, next) => {
-//   const { username, password } = req.body;
-//   const user = users.find((user) => user.username === username && user.password === password);
-//   if (!user) {
-//     return res.status(401).send({ message: "Unauthorized" });
-//   }
-//   req.user = user;
-//   next();
-// };
+const authenticateUser = (req, res, next) => {
+  const { username, password } = req.body;
+  const user = users.find(
+    (user) => user.username === username && user.password === password
+  );
+  if (!user) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+  req.user = user;
+  next();
+};
 
-// const authorizeUser = (req, res, next) => {
-//   if (req.user.role !== "admin") {
-//     return res.status(403).send({ message: "Forbidden" });
-//   }
-//   next();
-// };
-
-// app.post("/books/addBook", authenticateUser, authorizeUser, (req, res) => {
-//   // Route handler function
-// });
-
-// app.put("/books/updateBook", authenticateUser, authorizeUser, (req, res) => {
-//   // Route handler function
-// });
-
-// app.delete("/books/deleteBook", authenticateUser, authorizeUser, (req, res) => {
-//   // Route handler function
-// });
+const authorizeUser = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).send({ message: "Forbidden" });
+  }
+  next();
+};
 
 // In this example, the authenticateUser middleware function is used to verify the identity of the user making the request.
 // If the user is not authenticated, the middleware function sends a response with a 401 Unauthorized status code and an error message.
