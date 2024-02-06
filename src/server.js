@@ -2,12 +2,6 @@ const express = require("express");
 
 const app = express();
 
-// app.get("/health", (req, res) => {
-//   res.send("healthy");
-// });
-
-app.use("/RideOrDie", express.static("rod"));
-
 app.listen(5001, () => {
   console.log("Server is running on port 5001");
 });
