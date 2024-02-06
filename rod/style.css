@@ -1,0 +1,116 @@
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f2f2f2;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+nav {
+  background-color: #333;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.brand-name a {
+  color: white;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+ul {
+  list-style-type: none;
+  display: flex;
+}
+
+li {
+  margin-left: 10px;
+}
+
+li a {
+  color: white;
+  text-decoration: none;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.bike-image {
+  height: auto;
+  border-radius: 5%;
+  margin-bottom: 10px;
+}
+
+.contact-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 1px solid #333;
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.form-group textarea {
+  height: 100px;
+}
+
+.form-group button[type="submit"] {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.form-group button[type="submit"]:hover {
+  background-color: #cc0000;
+}
+
+footer {
+  margin-top: auto;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
+.social-media-section a {
+  color: white;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.social-media-section a:hover {
+  color: #ddd;
+  cursor: pointer;
+}
