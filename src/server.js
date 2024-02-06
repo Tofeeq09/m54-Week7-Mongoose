@@ -45,6 +45,10 @@ const app = express();
 // const response = fetch("https://api.example.com/data"); // GET // Read // Retrieve data
 // The fetch() function is used to make a GET request to the server.
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const booksArray = [];
 // The booksArray array is used to store the books in memory.
 
@@ -53,6 +57,10 @@ app.use(express.json());
 
 // The HTTP request methods are the actions that are performed on the server.
 // HTTP request methods: GET, POST, PUT, DELETE
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Define a route handler for GET requests to "/books/getAllBooks"
 app.get("/books/getAllBooks", (req, res) => {
@@ -72,6 +80,10 @@ app.get("/books/getAllBooks", (req, res) => {
 });
 // This route handler responds to GET requests for the "/books/getAllBooks" URL path.
 // When a GET request is made to this URL, the server responds with the current state of the booksArray array.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Define a route handler for POST requests to "/books/addBook"
 app.post("/books/addBook", (req, res) => {
@@ -95,11 +107,12 @@ app.post("/books/addBook", (req, res) => {
   ) {
     // If the validation fails, send a 400 Bad Request status code and an error message.
     // The 400 status code tells the client that the request was malformed.
-    return res.status(400).send({
+    res.status(400).send({
       message: "failure",
       error:
         "Invalid request body. Expected format: { title: string, author: string, genre: string }",
     });
+    return;
   }
 
   // Use the Array.prototype.some() method to check if a book with the same title already exists in booksArray
@@ -113,23 +126,29 @@ app.post("/books/addBook", (req, res) => {
       message: "failure",
       error: "Book with the same title already exists",
     });
-  } else {
-    // If no book with the same title exists, add the new book to booksArray
-    // The push() method adds new items to the end of an array, and returns the new length.
-    booksArray.push({ title, author, genre });
-
-    // Log the updated state of booksArray to the console
-    console.log("booksArray:", booksArray);
-
-    // Send a response with the status code 201 (Created), a success message, and the new book
-    // The 201 status code tells the client that the request has been fulfilled and has resulted in one or more new resources being created.
-    res
-      .status(201)
-      .send({ message: "success", newBook: booksArray[booksArray.length - 1] });
+    return;
   }
+
+  // If no book with the same title exists, add the new book to booksArray
+  // The push() method adds new items to the end of an array, and returns the new length.
+  booksArray.push({ title, author, genre });
+
+  // Log the updated state of booksArray to the console
+  console.log("booksArray:", booksArray);
+
+  // Send a response with the status code 201 (Created), a success message, and the new book
+  // The 201 status code tells the client that the request has been fulfilled and has resulted in one or more new resources being created.
+  res
+    .status(201)
+    .send({ message: "success", newBook: booksArray[booksArray.length - 1] });
 });
 // This route handler responds to POST requests for the "/books/addBook" URL path.
-// When a POST request is made to this URL, the server either adds a new book to booksArray (if no book with the same title exists) or sends an error message (if a book with the same title exists).
+// When a POST request is made to this URL, the server either adds a new book to booksArray (if no book with the same title exists)
+// or sends an error message (if a book with the same title exists).
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Define a route handler for PUT requests to "/books/updateBook"
 app.put("/books/updateBook", (req, res) => {
@@ -147,45 +166,64 @@ app.put("/books/updateBook", (req, res) => {
   // Extract the title, author, genre, and index from the request body
   const { title, author, genre, index } = req.body;
 
+  // If the title, author, genre, or index is not a string or number, or if the index is out of range, send a 400 Bad Request status code and an error message
   if (
-    // If the title, author, genre, or index is not a string or number, or if the index is out of range, send a 400 Bad Request status code and an error message
     typeof title !== "string" ||
     typeof author !== "string" ||
     typeof genre !== "string" ||
-    typeof index !== "number" ||
-    index < 0 ||
-    index >= booksArray.length
+    typeof index !== "number"
   ) {
-    return res.status(400).send({
+    res.status(400).send({
       message: "failure",
       error:
         "Invalid request body. Expected format: { title: string, author: string, genre: string, index: number }",
     });
+    return;
   }
 
   // Check if the index is valid (greater than or equal to 0 and less than the length of booksArray)
-  if (index >= 0 && index < booksArray.length) {
-    // If the title is provided, update the title of the book at the given index
-    if (title) booksArray[index].title = title;
-
-    // If the author is provided, update the author of the book at the given index
-    if (author) booksArray[index].author = author;
-
-    // If the genre is provided, update the genre of the book at the given index
-    if (genre) booksArray[index].genre = genre;
-
-    // Log the updated state of booksArray to the console
-    console.log("booksArray:", booksArray);
-
-    // Send a response with a status code of 200 (OK), a success message, and the updated book
-    res.send({ message: "success", updatedBook: booksArray[index] });
-  } else {
-    // If the index is invalid, send a response with a status code of 400 (Bad Request) and an error message
-    res.status(400).send({ message: "failure", error: "Invalid index" });
+  if (index < 0 || index >= booksArray.length) {
+    res.status(400).send({
+      message: "failure",
+      error:
+        "Invalid index. Index should be between 0 and " +
+        (booksArray.length - 1),
+    });
+    return;
   }
+
+  // Update the book at the specified index in booksArray
+  booksArray[index] = { ...booksArray[index], title, author, genre };
+  // The spread operator is used to create a new object with the updated properties
+  // The updated properties are title, author, and genre
+
+  // 1. booksArray[index] accesses the book object at the specified index in the booksArray.
+  // 2. { ...booksArray[index] } creates a new object that is a copy of the book object.
+  // The ... is the spread operator, which copies all properties from the book object into the new object.
+  // 3. { ...booksArray[index], title, author, genre } adds the title, author, and genre properties to the new object,
+  // overwriting the corresponding properties if they already exist in the copied book object.
+  // 4. booksArray[index] = ... assigns the new object back to the specified index in the booksArray,
+  // effectively updating the book at that index.
+
+  // So, this line is equivalent to the following code:
+  // let book = booksArray[index]; // Get the book at the specified index
+  // book.title = title; // Update the title
+  // book.author = author; // Update the author
+  // book.genre = genre; // Update the genre
+  // booksArray[index] = book; // Assign the updated book back to the array
+
+  console.log("booksArray:", booksArray);
+
+  // Send a response with a status code of 200 (OK), a success message, and the updated book
+  res.send({ message: "success", updatedBook: booksArray[index] });
 });
 // This route handler responds to PUT requests for the "/books/updateBook" URL path.
-// When a PUT request is made to this URL, the server either updates a book in booksArray (if the index is valid) or sends an error message (if the index is invalid).
+// When a PUT request is made to this URL, the server either updates a book in booksArray (if the index is valid)
+// or sends an error message (if the index is invalid).
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.delete("/books/deleteBook", (req, res) => {
   // Log the request body to the console
@@ -197,10 +235,11 @@ app.delete("/books/deleteBook", (req, res) => {
   // Validate the request body
   // If the title is not a string, send a 400 Bad Request status code and an error message
   if (typeof title !== "string") {
-    return res.status(400).send({
+    res.status(400).send({
       message: "failure",
       error: "Invalid request body. Expected format: { title: string }",
     });
+    return;
   }
 
   // Use the Array.prototype.findIndex() method to find the index of the book with the given title in booksArray
@@ -210,10 +249,11 @@ app.delete("/books/deleteBook", (req, res) => {
 
   // If no book with the given title is found, send a 400 Bad Request status code and an error message
   if (index === -1) {
-    return res.status(400).send({
+    res.status(400).send({
       message: "failure",
       error: "No book with the given title was found",
     });
+    return;
   }
 
   // Use the Array.prototype.splice() method to remove the book at the found index from booksArray
@@ -228,6 +268,12 @@ app.delete("/books/deleteBook", (req, res) => {
   res.send({ message: "success", deletedBook: deletedBook[0] });
 });
 // This handles the DELETE request for the "/deleteBook" URL path
+// When a DELETE request is made to this URL, the server either deletes a book from booksArray (if a book with the given title is found)
+// or sends an error message (if no book with the given title is found).
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.listen(5001, () => {
   console.log("Server is running on port 5001");
@@ -235,3 +281,14 @@ app.listen(5001, () => {
 // The app.listen() function is used to start the server on the specified port.
 // The app.listen() function takes two arguments: the port number and a callback function.
 // The callback function is called when the server starts.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// The routs that are used to add, update and delete books from booksArray need protection from unauthorized access.
+// This is because anyone can send a request to these routes and modify the booksArray.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
