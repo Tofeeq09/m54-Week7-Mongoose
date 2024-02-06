@@ -85,6 +85,7 @@ app.delete("/deleteBook", (req, res) => {
   // The req.body property is an object that contains key-value pairs of data sent in the request body.
   const deletedBook = fakeArr.splice(index, 1);
   // The splice() method is used to add or remove elements from an array.
+  // index is the position at which to start changing the array and 1 is the number of elements to remove.
   console.log("fakeArr:", fakeArr);
   res.send({ message: "success", deletedBook: deletedBook });
 });
