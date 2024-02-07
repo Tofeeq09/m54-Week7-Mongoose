@@ -47,21 +47,28 @@ const logTypeOfResult = async (result) => {
 // If req.body is empty, it will return all books
 app.get("/books", async (req, res) => {
   try {
-    const books = await Book.find({});
+    const books = await Book.find(req.query).exec();
     res.status(200).send(books);
   } catch (error) {
-    console.log("Error getting books: ", error);
-    res.status(500).send({ message: "Error getting books" });
+    console.log("Error fetching books: ", error);
+    res.status(400).send({ message: "Error fetching books" });
   }
 });
 
 app.post("/books", async (req, res) => {
   try {
-    const newBooks = await Book.insertMany(req.body);
+    if (Array.isArray(req.body)) {
+      const newBooks = await Book.insertMany(req.body);
+      res.status(201).send(newBooks);
+      return;
+    }
+    const newBooks = await Book.create(req.body);
     res.status(201).send(newBooks);
+    return;
   } catch (error) {
-    res.status(400).send({ message: "Error adding book" });
     console.log("Error adding book: ", error);
+    res.status(400).send({ message: "Error adding book" });
+    return;
   }
 });
 
@@ -86,8 +93,8 @@ app.put("/books", async (req, res) => {
 
 app.delete("/books", (req, res) => {});
 
-app.listen(5001, () => {
-  console.log("Server is running on port 5001");
+app.listen(5002, () => {
+  console.log("Server is running on port 5002");
 });
 
 // const jwt = require("jsonwebtoken");
