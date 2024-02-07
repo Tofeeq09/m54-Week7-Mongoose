@@ -58,11 +58,13 @@ app.get("/books", async (req, res) => {
 app.post("/books", async (req, res) => {
   try {
     if (Array.isArray(req.body)) {
-      const newBooks = await Book.insertMany(req.body);
+      console.log("Using insertMany method");
+      const newBooks = await Book.insertMany(req.body); // If they add a Book object, it will add it
       res.status(201).send(newBooks);
       return;
     }
-    const newBooks = await Book.create(req.body);
+    console.log("Using create method");
+    const newBooks = await Book.create(req.body); // If they add an Array of Books, it will add all of them
     res.status(201).send(newBooks);
     return;
   } catch (error) {
