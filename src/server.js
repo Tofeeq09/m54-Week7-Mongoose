@@ -43,38 +43,58 @@ const logTypeOfResult = async (result) => {
   return message;
 };
 
-// If you put the title in the body, it will return the book with that title
-// If req.body is empty, it will return all books
+// GET "/books" endpoint. This endpoint is used to fetch books from the database.
 app.get("/books", async (req, res) => {
   try {
+    // Use the find method to search the database for books that match the query parameters.
+    // If no query parameters are provided, all books will be returned.
     const books = await Book.find(req.query).exec();
+    // Send a 200 OK status code and the found books in the response.
     res.status(200).send(books);
   } catch (error) {
     console.log("Error fetching books: ", error);
+    // If there's an error, send a 400 Bad Request status code and an error message in the response.
     res.status(400).send({ message: "Error fetching books" });
   }
 });
+// To use query parameters, add them to the end of the URL as key-value pairs.
+// The key is the parameter you want to search by (e.g., 'author', 'title', 'genre'),
+// and the value is what you want to search for.
+// For example, to search for books by a specific author, use '/books?author=AuthorName'.
+// If no query parameters are provided, all books will be returned.
+// https://mongoosejs.com/docs/api/model.html#Model.find()
 
+// POST "/books" endpoint. This endpoint is used to add new books to the database.
 app.post("/books", async (req, res) => {
   try {
+    // Check if the request body is an array.
     if (Array.isArray(req.body)) {
       console.log("Using insertMany method");
-      const newBooks = await Book.insertMany(req.body); // If they add a Book object, it will add it
+      // If the request body is an array of books, use the insertMany method to add all of them to the database.
+      const newBooks = await Book.insertMany(req.body);
+      // Send a 201 Created status code and the newly created books in the response.
       res.status(201).send(newBooks);
       return;
     }
     console.log("Using create method");
-    const newBooks = await Book.create(req.body); // If they add an Array of Books, it will add all of them
+    // If the request body is a single book object, use the create method to add it to the database.
+    const newBooks = await Book.create(req.body);
+    // Send a 201 Created status code and the newly created book in the response.
     res.status(201).send(newBooks);
     return;
   } catch (error) {
     console.log("Error adding book: ", error);
+    // If there's an error, send a 400 Bad Request status code and an error message in the response.
     res.status(400).send({ message: "Error adding book" });
     return;
   }
 });
+// To use the insertMany method, pass an array of book objects as the argument.
+// To use the create method, pass a single book object as the argument.
+// https://mongoosejs.com/docs/api/model.html#model_Model.insertMany
+// https://mongoosejs.com/docs/api/model.html#model_Model.create
 
-app.put("/books", async (req, res) => {
+app.put("/books/:id", async (req, res) => {
   try {
     const updatedBook = await Book.findOneAndUpdate(
       { title: req.body.title }, // conditions
