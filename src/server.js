@@ -28,13 +28,14 @@ const app = express();
 // The database is the repository where data is stored and managed.
 
 // **Database operations** are the actions that are performed on the database.
+// HTTP verbs are used to perform database operations.
 // Read - GET
 // Create - POST
 // Update - PUT
 // Delete - DELETE
 
 // The HTTP response status codes are the messages that are returned by the server.
-// HTTP response status codes: 200, 201, 400, 404, 500
+// HTTP response status codes: 200, 201, 400, 401, 403, 404, 500, etc.
 // The HTTP response status code 200 OK indicates that the request has succeeded.
 // The HTTP response status code 201 Created indicates that the request has succeeded and has led to the creation of a resource.
 // The HTTP response status code 400 Bad Request indicates that the server cannot or will not process the request due to an apparent client error.
@@ -109,8 +110,8 @@ const authenticateUser = (req, res, next) => {
     // If the token is missing, send a response with a 401 Unauthorized status code and an error message.
     res.status(401).send({ message: "Unauthorized" }); // The 401 status code tells the client that the request has not been applied because it lacks valid authentication credentials for the target resource.
     // The message is sent to the client and can be used to display an error message to the user.
+    // The error is sent to the client and can be used to display the specific error message to the user.
     // After calling the res.send() function, the route handler function is done and no more code will be executed.
-    // The return statement is used to stop the execution of the route handler function after sending the response.
     return;
     // The return statement is used to stop the execution of the route handler function after sending the response.
   }
@@ -120,6 +121,8 @@ const authenticateUser = (req, res, next) => {
     // The try block is used to enclose the code that might throw an error.
     const user = jwt.verify(token, secret); // The parameter is the token, which is used to verify the authenticity of a JWT.
     // The jwt.verify() function is used to verify the authenticity of a JWT.
+    // The first parameter is the token, which is the JWT to verify.
+    // The second parameter is the secret key, which is used to verify the signature of the token.
     req.user = user; // The req.user property is used to store the user object.
     next(); // The next function is called to pass control to the next middleware function in the application's request-response cycle.
   } catch (error) {
@@ -348,16 +351,15 @@ app.post("/books/addBook", authenticateUser, authorizeUser, (req, res) => {
   // If no book with the same title exists, continue with the next steps.
 
   // If no book with the same title exists, add the new book to booksArray
-  // The push() method adds new items to the end of an array, and returns the new length.
+  // The push() method adds new book's title, author, and genre to the booksArray array.
   booksArray.push({ title, author, genre });
 
   // Log the updated state of booksArray to the console
   console.log("booksArray:", booksArray);
 
   // Send a response with the status code 201 (Created), a success message, and the new book
-  // The 201 status code tells the client that the request has been fulfilled and has resulted in one or more new resources being created.
   res
-    .status(201)
+    .status(201) // The 201 status code tells the client that the request has been fulfilled and has resulted in one or more new resources being created.
     .send({ message: "success", newBook: booksArray[booksArray.length - 1] });
   // The message is sent to the client and can be used to display a success message to the user.
   // The new book is the last book in the booksArray, so its index is booksArray.length - 1.
