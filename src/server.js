@@ -35,15 +35,19 @@ const bookSchema = new mongoose.Schema({
 
 const Book = mongoose.model("Book", bookSchema);
 
-// const logTypeOfResult = async (result) => {
-//   console.log(`Typeof result: ${typeof result} - result: ${result}`);
-// };
+const logTypeOfResult = async (result) => {
+  const message = `Typeof result: ${typeof result} - result: ${JSON.stringify(
+    result
+  )}`;
+  console.log(message);
+  return message;
+};
 
 // If you put the title in the body, it will return the book with that title
 // If req.body is empty, it will return all books
 app.get("/books", async (req, res) => {
   try {
-    const books = await Book.find(req.body).exec();
+    const books = await Book.find({});
     res.status(200).send(books);
   } catch (error) {
     console.log("Error getting books: ", error);
@@ -62,11 +66,22 @@ app.post("/books", async (req, res) => {
 });
 
 app.put("/books", async (req, res) => {
-  // try {
-  //   await Tank.updateOne({});
-  // } catch (error) {
-  //   console.log("Error adding book: ", error);
-  // }
+  try {
+    const updatedBook = await Book.findOneAndUpdate(
+      { title: req.body.title }, // conditions
+      { author: req.body.author }, // update
+      { new: true } // options
+    );
+
+    if (!updatedBook) {
+      return res.status(404).send({ message: "Book not found" });
+    }
+
+    res.status(200).send(await logTypeOfResult(updatedBook));
+  } catch (error) {
+    console.log("Error updating book: ", error);
+    res.status(500).send({ message: "Error updating book" });
+  }
 });
 
 app.delete("/books", (req, res) => {});
@@ -76,7 +91,7 @@ app.listen(5001, () => {
 });
 
 // const jwt = require("jsonwebtoken");
-// const secret = "your-secret-key";
+// const secret = "secret-key";
 
 // const users = [
 //   { username: "admin", password: "admin", role: "admin" },
