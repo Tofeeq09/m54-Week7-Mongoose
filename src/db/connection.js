@@ -16,4 +16,5 @@ const connection = async () => {
   }
 };
 
+// Export the 'connection' function so that it can be imported and used in the server.js file
 module.exports = connection;

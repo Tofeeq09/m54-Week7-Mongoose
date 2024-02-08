@@ -17,5 +17,5 @@ const bookSchema = new mongoose.Schema({
 // Create a Mongoose model named 'Book' using the book schema
 const Book = mongoose.model("Book", bookSchema);
 
-// Export the Book model
+// Export the Book mongoose model so that it can be imported and used in the controller.js file
 module.exports = Book;

@@ -1,6 +1,12 @@
 // Dependencies
 const Book = require("./model"); // Import the Book model from the model.js file.
 
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+
+// This is an asynchronous function to add a book or an array of books to the database.
+// It's an Express middleware function that handles HTTP POST requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const addBook = async (req, res) => {
   try {
     // Check if the request body is an array.
@@ -43,6 +49,9 @@ const addBook = async (req, res) => {
 // https://mongoosejs.com/docs/api/model.html#model_Model.insertMany
 // https://mongoosejs.com/docs/api/model.html#model_Model.create
 
+// This is an asynchronous function to fetch all or specific books from the database.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getAllOrSomeBooks = async (req, res) => {
   try {
     // The find method is a part of Mongoose's API for models. It finds documents in the database that match the provided condition.
@@ -77,6 +86,9 @@ const getAllOrSomeBooks = async (req, res) => {
 // More information about the find method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#Model.find()
 
+// This is an asynchronous function to delete all books from the database.
+// It's an Express middleware function that handles HTTP DELETE requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const deleteAllBooks = async (req, res) => {
   try {
     // The deleteMany method is a part of Mongoose's API for models. It deletes documents from the database that match the provided condition.
@@ -117,6 +129,9 @@ const deleteAllBooks = async (req, res) => {
 /////////////////////////////////////////////
 /////////////////////////////////////////////
 
+// This is an asynchronous function to fetch all unique titles from the database.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getAllTitles = async (req, res) => {
   try {
     // The distinct method is a part of Mongoose's API for models. It finds all distinct values of a specific field in the collection.
@@ -196,6 +211,9 @@ const getBookByTitle = async (req, res) => {
 // More information about the findOne method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.findOne
 
+// This is an asynchronous function to update a book by its title.
+// It's an Express middleware function that handles HTTP PUT requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const UpdateAllFieldsByTitle = async (req, res) => {
   try {
     // The findOneAndUpdate method is a part of Mongoose's API for models. It finds a document that matches the conditions and updates it.
@@ -243,9 +261,53 @@ const UpdateAllFieldsByTitle = async (req, res) => {
 // More information about the findOneAndUpdate method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.findOneAndUpdate
 
+// This is an asynchronous function to delete a book by its title.
+// It's an Express middleware function that handles HTTP DELETE requests.
+// It takes two arguments: req (the request object) and res (the response object).
+const deleteBookByTitle = async (req, res) => {
+  try {
+    // The findOneAndDelete method is a part of Mongoose's API for models. It finds a single document that matches the conditions and deletes it.
+    // The title is passed as a parameter in the URL and accessed through req.params.title.
+    // This method returns a Promise that resolves to the deleted document if found and deleted, null otherwise.
+    const deletedBook = await Book.findOneAndDelete({
+      title: req.params.title,
+    });
+
+    // If no book is found (i.e., the deletedBook object is null), send a 404 Not Found status code and a message in the response.
+    // The 404 status code indicates that the server can't find the requested resource.
+    // In this case, it means that there's no book with the given title in the database.
+    if (!deletedBook) {
+      res.status(404).send({ message: "Book not found" });
+      return;
+    }
+
+    // If a book is found and deleted, send a 200 OK status code and a message in the response.
+    // The 200 status code indicates that the request has succeeded.
+    res.status(200).send({ message: "Book successfully deleted" });
+  } catch (error) {
+    // If there's an error, log it to the console.
+    // This could be a database error or a network error, for example.
+    console.log("Error deleting book: ", error);
+
+    // Send a 500 Internal Server Error status code and an error message in the response.
+    // The 500 status code indicates that the server has encountered a situation it doesn't know how to handle.
+    // The error message provides more information about what went wrong.
+    // This could be useful for debugging the error.
+    res
+      .status(500)
+      .send({ message: "Error deleting book", error: error.message });
+  }
+};
+// To use the findOneAndDelete method, pass the conditions to find the book by its title as the argument.
+// More information about the findOneAndDelete method can be found in the Mongoose documentation:
+// https://mongoosejs.com/docs/api/model.html#model_Model.findOneAndDelete
+
 /////////////////////////////////////////////
 /////////////////////////////////////////////
 
+// This is an asynchronous function to fetch all unique authors from the database.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getAllAuthors = async (req, res) => {
   try {
     // The distinct method is a part of Mongoose's API for models. It finds all distinct values of a specific field in the collection.
@@ -285,6 +347,9 @@ const getAllAuthors = async (req, res) => {
 // More information about the distinct method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.distinct
 
+// This is an asynchronous function to fetch books from the database by their author.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getAllBooksFromAuthor = async (req, res) => {
   try {
     // The find method is a part of Mongoose's API for models. It retrieves documents that match the conditions.
@@ -324,6 +389,9 @@ const getAllBooksFromAuthor = async (req, res) => {
 // More information about the find method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.find
 
+// This is an asynchronous function to update the author's name in the database for all books by that author.
+// It's an Express middleware function that handles HTTP PUT requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const updateAuthorNameForAllBooks = async (req, res) => {
   try {
     const result = await Book.updateMany(
@@ -351,6 +419,9 @@ const updateAuthorNameForAllBooks = async (req, res) => {
 // More information about the updateMany method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.updateMany
 
+// This is an asynchronous function to delete all of an author's books from the database.
+// It's an Express middleware function that handles HTTP DELETE requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const deleteAllBooksByAuthor = async (req, res) => {
   try {
     const result = await Book.deleteMany({ author: req.params.author });
@@ -375,6 +446,9 @@ const deleteAllBooksByAuthor = async (req, res) => {
 /////////////////////////////////////////////
 /////////////////////////////////////////////
 
+// This is an asynchronous function to fetch all unique genres from the database.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getAllGenres = async (req, res) => {
   try {
     // The distinct method is a part of Mongoose's API for models. It finds all distinct values of a specific field in the collection.
@@ -414,6 +488,9 @@ const getAllGenres = async (req, res) => {
 // More information about the distinct method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.distinct
 
+// This is an asynchronous function to fetch books from the database by their genre.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getAllBooksFromGenre = async (req, res) => {
   try {
     // The find method is a part of Mongoose's API for models. It retrieves documents that match the conditions.
@@ -451,6 +528,9 @@ const getAllBooksFromGenre = async (req, res) => {
 // More information about the find method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.find
 
+// This is an asynchronous function to update the genre in the database for all books by that genre.
+// It's an Express middleware function that handles HTTP PUT requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const updateGenreForAllBooks = async (req, res) => {
   try {
     const result = await Book.updateMany(
@@ -472,6 +552,9 @@ const updateGenreForAllBooks = async (req, res) => {
   }
 };
 
+// This is an asynchronous function to delete all of a genre's books from the database.
+// It's an Express middleware function that handles HTTP DELETE requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const deleteAllBooksByGenre = async (req, res) => {
   try {
     const result = await Book.deleteMany({ genre: req.params.genre });
@@ -496,6 +579,9 @@ const deleteAllBooksByGenre = async (req, res) => {
 /////////////////////////////////////////////
 /////////////////////////////////////////////
 
+// This is an asynchronous function to fetch a book by it's unique mongoDB id.
+// It's an Express middleware function that handles HTTP GET requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const getBookById = async (req, res) => {
   try {
     // The findById method is a part of Mongoose's API for models. It finds a document by its id.
@@ -534,6 +620,9 @@ const getBookById = async (req, res) => {
 // More information about the findById method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.findById
 
+// This is an asynchronous function to update any field of a book by its unique mongoDB id.
+// It's an Express middleware function that handles HTTP PUT requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const updateBookById = async (req, res) => {
   try {
     // The findOneAndUpdate method is a part of Mongoose's API for models. It finds a document by its id and updates it.
@@ -582,6 +671,9 @@ const updateBookById = async (req, res) => {
 // More information about the findOneAndUpdate method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.findOneAndUpdate
 
+// This is an asynchronous function to delete a book by its unique mongoDB id.
+// It's an Express middleware function that handles HTTP DELETE requests.
+// It takes two arguments: req (the request object) and res (the response object).
 const deleteBookById = async (req, res) => {
   try {
     // The findByIdAndDelete method is a part of Mongoose's API for models. It finds a document by its id and deletes it.
@@ -621,7 +713,12 @@ const deleteBookById = async (req, res) => {
 // More information about the findByIdAndDelete method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.findByIdAndDelete
 
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+
+// Export the controller functions as an object so they can be imported and used in the routes.js file.
 module.exports = {
+  /////////////////////////////////////////////
   addBook,
   getAllOrSomeBooks,
   deleteAllBooks,
@@ -629,6 +726,7 @@ module.exports = {
   getAllTitles,
   getBookByTitle,
   UpdateAllFieldsByTitle,
+  deleteBookByTitle,
   /////////////////////////////////////////////
   getAllAuthors,
   getAllBooksFromAuthor,
@@ -643,4 +741,5 @@ module.exports = {
   getBookById,
   updateBookById,
   deleteBookById,
+  /////////////////////////////////////////////
 };
