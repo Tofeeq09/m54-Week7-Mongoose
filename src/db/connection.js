@@ -1,3 +1,4 @@
+// Dependencies
 const mongoose = require("mongoose");
 
 // Define an asynchronous function named 'connection'

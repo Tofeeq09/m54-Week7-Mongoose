@@ -1,3 +1,4 @@
+// Dependencies
 const mongoose = require("mongoose"); // Import the mongoose package
 
 // Define a Mongoose schema for a book. A schema represents the structure of a document in MongoDB,
