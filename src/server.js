@@ -15,6 +15,7 @@ app.use(express.json());
 // Call the 'connection' function
 connection();
 
+// Mount the bookRouter on the "/books" path
 app.use("/books", bookRouter);
 
 // The app.listen method starts the server and makes it listen for incoming requests on the specified port.
