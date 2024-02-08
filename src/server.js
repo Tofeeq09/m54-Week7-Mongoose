@@ -1,46 +1,31 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
-const { log } = require("console");
-require("dotenv").config();
 
+// imports
+const connection = require("./db/connection");
+const bookRouter = require("./books/routes");
+
+// Create an instance of the express application
 const app = express();
 
-// HTTP response status codes: 200, 201, 400, 401, 403, 404, 500, etc.
-// The HTTP response status code 200 OK indicates that the request has succeeded.
-// The HTTP response status code 201 Created indicates that the request has succeeded and has led to the creation of a resource.
-// The HTTP response status code 400 Bad Request indicates that the server cannot or will not process the request due to an apparent client error.
-// The HTTP response status code 401 Unauthorized indicates that the request has not been applied because it lacks valid authentication credentials for the target resource.
-// The HTTP response status code 403 Forbidden indicates that the server understood the request, but refuses to authorize it.
-// The HTTP response status code 404 Not Found indicates that the server cannot find the requested resource.
-// The HTTP response status code 500 Internal Server Error indicates that the server has encountered a situation it doesn't know how to handle.
-
+// The ap.use method is used to add middleware to the application's request-response cycle.
 app.use(express.json());
 
-const connection = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB");
-  } catch (error) {
-    console.error("Error connecting to MongoDB: ", error);
-    process.exit(1); // Exit process with failure
-  }
-};
+// Call the 'connection' function
 connection();
 
-const bookSchema = new mongoose.Schema({
-  title: { type: String, required: true, unique: true },
-  author: { type: String, required: true },
-  genre: { type: String, required: true },
-});
+app.use(bookRouter);
 
-const Book = mongoose.model("Book", bookSchema);
-
+// Define an asynchronous function named 'logTypeOfResult' that logs the type and value of a result
 const logTypeOfResult = async (result) => {
+  // Create a message string that includes the type and stringified value of the result
   const message = `Typeof result: ${typeof result} - result: ${JSON.stringify(
     result
   )}`;
+  // Log the message
   console.log(message);
-  message;
+  // Return from the function
   return;
 };
 
@@ -123,11 +108,6 @@ app.post("/books", async (req, res) => {
 // More information about the insertMany and create methods can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.insertMany
 // https://mongoosejs.com/docs/api/model.html#model_Model.create
-// To use the insertMany method, pass an array of book objects as the argument.
-// To use the create method, pass a single book object as the argument.
-// More information about the insertMany and create methods can be found in the Mongoose documentation:
-// https://mongoosejs.com/docs/api/model.html#model_Model.insertMany
-// https://mongoosejs.com/docs/api/model.html#model_Model.create
 
 // DELETE "/books" endpoint. This endpoint is used to delete all books from the database.
 app.delete("/books", async (req, res) => {
@@ -158,6 +138,46 @@ app.delete("/books", async (req, res) => {
 });
 // More information about the deleteMany method can be found in the Mongoose documentation:
 // https://mongoosejs.com/docs/api/model.html#model_Model.deleteMany
+
+// GET "/books/title" endpoint. This endpoint is used to fetch all unique title from the database.
+app.get("/books/title", async (req, res) => {
+  try {
+    // The distinct method is a part of Mongoose's API for models. It finds all distinct values of a specific field in the collection.
+    // In this case, it finds all distinct title in the 'books' collection.
+    // This method returns a Promise that resolves to an array of the distinct values.
+    const titles = await Book.distinct("title");
+
+    // If no authors are found (i.e., the title array is empty), send a 404 Not Found status code and a message in the response.
+    // The 404 status code indicates that the server can't find the requested resource.
+    // In this case, it means that there are no title in the database.
+    if (titles.length === 0) {
+      res.status(404).send({
+        message: "No authors found",
+      });
+      return;
+    }
+
+    // If title are found, send a 200 OK status code and the titles in the response.
+    // The 200 status code indicates that the request has succeeded.
+    // The response body contains the array of titles.
+    res.status(200).send(titles);
+  } catch (error) {
+    // If there's an error, log it to the console.
+    // This could be a database error or a network error, for example.
+    console.log("Error getting titles: ", error);
+
+    // Send a 500 Internal Server Error status code and an error message in the response.
+    // The 500 status code indicates that the server has encountered a situation it doesn't know how to handle.
+    // The error message provides more information about what went wrong.
+    // This could be useful for debugging the error.
+    res
+      .status(500)
+      .send({ message: "Error getting titles", error: error.message });
+  }
+});
+// To use the distinct method, pass the field name as the argument.
+// More information about the distinct method can be found in the Mongoose documentation:
+// https://mongoosejs.com/docs/api/model.html#model_Model.distinct
 
 // GET "/books/author" endpoint. This endpoint is used to fetch all unique authors from the database.
 app.get("/books/author", async (req, res) => {
@@ -526,45 +546,19 @@ app.get("/books/author/:author", async (req, res) => {
 // PUT "/books/author/:author" endpoint. This endpoint is used to update books in the database by their author.
 app.put("/books/author/:author", async (req, res) => {
   try {
-    // The countDocuments method is a part of Mongoose's API for models. It counts the number of documents that match the conditions.
-    // The author is passed as a parameter in the URL and accessed through req.params.author.
-    // This method returns a Promise that resolves to the count of documents that match the conditions.
-    const count = await Book.countDocuments({ author: req.params.author });
+    const result = await Book.updateMany(
+      { author: req.params.author }, // conditions
+      { author: req.body.author } // update
+    );
 
-    // If no books are found (i.e., the count is 0), send a 404 Not Found status code and a message in the response.
-    // The 404 status code indicates that the server can't find the requested resource.
-    // In this case, it means that there's no book with the given author in the database.
-    if (count === 0) {
-      res.status(404).send({
-        message: "No books found from this author",
-      });
+    if (result.modifiedCount === 0) {
+      res.status(404).send({ message: "No books found from this author" });
       return;
     }
 
-    // The updateMany method is a part of Mongoose's API for models. It updates documents that match the conditions.
-    // The author is passed as a parameter in the URL and accessed through req.params.author.
-    // The new author is passed in the request body and accessed through req.body.author.
-    // The new: true option in the options argument makes the method return the updated documents.
-    // This method returns a Promise that resolves to the result of the update operation.
-    await Book.updateMany(
-      { author: req.params.author }, // conditions
-      { author: req.body.author }, // update
-      { new: true } // options
-    );
-
-    // If books are found and updated, send a 200 OK status code and a message in the response.
-    // The 200 status code indicates that the request has succeeded.
-    // The response body contains a message that includes the count of updated books.
-    res.status(200).send({ message: `${count} books updated` });
+    res.status(200).send({ message: `${result.modifiedCount} books updated` });
   } catch (error) {
-    // If there's an error, log it to the console.
-    // This could be a database error or a network error, for example.
     console.log("Error updating books: ", error);
-
-    // Send a 500 Internal Server Error status code and an error message in the response.
-    // The 500 status code indicates that the server has encountered a situation it doesn't know how to handle.
-    // The error message provides more information about what went wrong.
-    // This could be useful for debugging the error.
     res
       .status(500)
       .send({ message: "Error updating books", error: error.message });
@@ -580,39 +574,16 @@ app.put("/books/author/:author", async (req, res) => {
 // DELETE "/books/author/:author" endpoint. This endpoint is used to delete books from the database by their author.
 app.delete("/books/author/:author", async (req, res) => {
   try {
-    // The countDocuments method is a part of Mongoose's API for models. It counts the number of documents that match the conditions.
-    // The author is passed as a parameter in the URL and accessed through req.params.author.
-    // This method returns a Promise that resolves to the count of documents that match the conditions.
-    const count = await Book.countDocuments({ author: req.params.author });
+    const result = await Book.deleteMany({ author: req.params.author });
 
-    // If no books are found (i.e., the count is 0), send a 404 Not Found status code and a message in the response.
-    // The 404 status code indicates that the server can't find the requested resource.
-    // In this case, it means that there's no book with the given author in the database.
-    if (count === 0) {
-      res.status(404).send({
-        message: "No books found from this author",
-      });
+    if (result.deletedCount === 0) {
+      res.status(404).send({ message: "No books found from this author" });
       return;
     }
 
-    // The deleteMany method is a part of Mongoose's API for models. It deletes documents that match the conditions.
-    // The author is passed as a parameter in the URL and accessed through req.params.author.
-    // This method returns a Promise that resolves to the result of the delete operation.
-    await Book.deleteMany({ author: req.params.author });
-
-    // If books are found and deleted, send a 200 OK status code and a message in the response.
-    // The 200 status code indicates that the request has succeeded.
-    // The response body contains a message that includes the count of deleted books.
-    res.status(200).send({ message: `${count} books deleted` });
+    res.status(200).send({ message: `${result.deletedCount} books deleted` });
   } catch (error) {
-    // If there's an error, log it to the console.
-    // This could be a database error or a network error, for example.
     console.log("Error deleting books: ", error);
-
-    // Send a 500 Internal Server Error status code and an error message in the response.
-    // The 500 status code indicates that the server has encountered a situation it doesn't know how to handle.
-    // The error message provides more information about what went wrong.
-    // This could be useful for debugging the error.
     res
       .status(500)
       .send({ message: "Error deleting books", error: error.message });
@@ -663,43 +634,19 @@ app.get("/books/genre/:genre", async (req, res) => {
 // PUT "/books/genre/:genre" endpoint. This endpoint is used to update books in the database by their genre.
 app.put("/books/genre/:genre", async (req, res) => {
   try {
-    // The countDocuments method is a part of Mongoose's API for models. It counts the number of documents that match the conditions.
-    // The genre is passed as a parameter in the URL and accessed through req.params.genre.
-    // This method returns a Promise that resolves to the count of documents that match the conditions.
-    const count = await Book.countDocuments({ genre: req.params.genre });
+    const result = await Book.updateMany(
+      { genre: req.params.genre }, // conditions
+      { genre: req.body.genre } // update
+    );
 
-    // If no books are found (i.e., the count is 0), send a 404 Not Found status code and a message in the response.
-    // The 404 status code indicates that the server can't find the requested resource.
-    // In this case, it means that there's no book with the given genre in the database.
-    if (count === 0) {
-      res.status(404).send({ message: "No books found for this genre" });
+    if (result.modifiedCount === 0) {
+      res.status(404).send({ message: "No books found from this genre" });
       return;
     }
 
-    // The updateMany method is a part of Mongoose's API for models. It updates documents that match the conditions.
-    // The genre is passed as a parameter in the URL and accessed through req.params.genre.
-    // The new genre is passed in the request body and accessed through req.body.genre.
-    // The { new: true } option ensures that the method returns the document as it was after the update was applied.
-    // This method returns a Promise that resolves to the result of the update operation.
-    await Book.updateMany(
-      { genre: req.params.genre }, // conditions
-      { genre: req.body.genre }, // update
-      { new: true } // options
-    );
-
-    // If books are found and updated, send a 200 OK status code and a message in the response.
-    // The 200 status code indicates that the request has succeeded.
-    // The response body contains a message that includes the count of updated books.
-    res.status(200).send({ message: `${count} books updated` });
+    res.status(200).send({ message: `${result.modifiedCount} books updated` });
   } catch (error) {
-    // If there's an error, log it to the console.
-    // This could be a database error or a network error, for example.
     console.log("Error updating books: ", error);
-
-    // Send a 500 Internal Server Error status code and an error message in the response.
-    // The 500 status code indicates that the server has encountered a situation it doesn't know how to handle.
-    // The error message provides more information about what went wrong.
-    // This could be useful for debugging the error.
     res
       .status(500)
       .send({ message: "Error updating books", error: error.message });
@@ -715,37 +662,16 @@ app.put("/books/genre/:genre", async (req, res) => {
 // DELETE "/books/genre/:genre" endpoint. This endpoint is used to delete books from the database by their genre.
 app.delete("/books/genre/:genre", async (req, res) => {
   try {
-    // The countDocuments method is a part of Mongoose's API for models. It counts the number of documents that match the conditions.
-    // The genre is passed as a parameter in the URL and accessed through req.params.genre.
-    // This method returns a Promise that resolves to the count of documents that match the conditions.
-    const count = await Book.countDocuments({ genre: req.params.genre });
+    const result = await Book.deleteMany({ genre: req.params.genre });
 
-    // If no books are found (i.e., the count is 0), send a 404 Not Found status code and a message in the response.
-    // The 404 status code indicates that the server can't find the requested resource.
-    // In this case, it means that there's no book with the given genre in the database.
-    if (count === 0) {
+    if (result.deletedCount === 0) {
       res.status(404).send({ message: "No books found for this genre" });
       return;
     }
 
-    // The deleteMany method is a part of Mongoose's API for models. It deletes documents that match the conditions.
-    // The genre is passed as a parameter in the URL and accessed through req.params.genre.
-    // This method returns a Promise that resolves to the result of the deletion operation.
-    await Book.deleteMany({ genre: req.params.genre });
-
-    // If books are found and deleted, send a 200 OK status code and a message in the response.
-    // The 200 status code indicates that the request has succeeded.
-    // The response body contains a message that includes the count of deleted books.
-    res.status(200).send({ message: `${count} books deleted` });
+    res.status(200).send({ message: `${result.deletedCount} books deleted` });
   } catch (error) {
-    // If there's an error, log it to the console.
-    // This could be a database error or a network error, for example.
     console.log("Error deleting books: ", error);
-
-    // Send a 500 Internal Server Error status code and an error message in the response.
-    // The 500 status code indicates that the server has encountered a situation it doesn't know how to handle.
-    // The error message provides more information about what went wrong.
-    // This could be useful for debugging the error.
     res
       .status(500)
       .send({ message: "Error deleting books", error: error.message });
@@ -760,8 +686,6 @@ app.listen(5003, () => {
   // Log a message to the console to indicate that the server is running.
   console.log("Server is running on port 5003");
 });
-
-// The app.listen method starts the server and makes it listen for incoming requests on the specified port.
 
 // const jwt = require("jsonwebtoken");
 // const secret = "secret-key";
