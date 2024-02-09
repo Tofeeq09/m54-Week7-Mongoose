@@ -52,7 +52,7 @@ const addBook = async (req, res) => {
 // This is an asynchronous function to fetch all or specific books from the database.
 // It's an Express middleware function that handles HTTP GET requests.
 // It takes two arguments: req (the request object) and res (the response object).
-const getAllOrSomeBooks = async (req, res) => {
+const getAllOrSpecificBooks = async (req, res) => {
   try {
     // The find method is a part of Mongoose's API for models. It finds documents in the database that match the provided condition.
     // req.query contains the query string parameters that were sent with the request.
@@ -720,7 +720,7 @@ const deleteBookById = async (req, res) => {
 module.exports = {
   /////////////////////////////////////////////
   addBook,
-  getAllOrSomeBooks,
+  getAllOrSpecificBooks,
   deleteAllBooks,
   /////////////////////////////////////////////
   getAllTitles,

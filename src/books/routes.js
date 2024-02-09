@@ -7,7 +7,7 @@ const Book = require("./model"); // From the model.js file
 const {
   /////////From the controller.js file/////////
   addBook,
-  getAllOrSomeBooks,
+  getAllOrSpecificBooks,
   deleteAllBooks,
   /////////////////////////////////////////////
   getAllTitles,
@@ -34,8 +34,8 @@ const {
 /////////////////////////////////////////////
 // POST "/books" endpoint. This endpoint is used to add new books to the database.
 bookRouter.post("/", addBook);
-// GET "/books" endpoint. This endpoint is used to fetch books from the database.
-bookRouter.get("/", getAllOrSomeBooks);
+// GET "/books" endpoint. This endpoint is used to fetch all books or specific books by using query parameters.
+bookRouter.get("/", getAllOrSpecificBooks);
 // DELETE "/books" endpoint. This endpoint is used to delete all books from the database.
 bookRouter.delete("/", deleteAllBooks);
 
@@ -44,7 +44,7 @@ bookRouter.delete("/", deleteAllBooks);
 bookRouter.get("/title", getAllTitles);
 // GET "/books/title/:title" endpoint. This endpoint is used to fetch books from the database by their title.
 bookRouter.get("/title/:title", getBookByTitle);
-// PUT "/books/title/:title" endpoint. This endpoint is used to update a book in the database by its title.
+// PUT "/books/title/:title" endpoint. This endpoint is used to dynamically update all book fields by its title.
 bookRouter.put("/title/:title", UpdateAllFieldsByTitle);
 // DELETE "/books/title/:title" endpoint. This endpoint is used to delete a book from the database by its title.
 bookRouter.delete("/title/:title", deleteBookByTitle);
