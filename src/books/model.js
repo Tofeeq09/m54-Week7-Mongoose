@@ -1,5 +1,5 @@
-// Dependencies
-const mongoose = require("mongoose"); // Import the mongoose package
+// External Dependencies - From third-party packages.
+const mongoose = require("mongoose"); // Import the mongoose package.
 
 // Define a Mongoose schema for a book. A schema represents the structure of a document in MongoDB,
 const bookSchema = new mongoose.Schema({
@@ -14,8 +14,8 @@ const bookSchema = new mongoose.Schema({
   genre: { type: String, required: true },
 });
 
-// Create a Mongoose model named 'Book' using the book schema
+// Create a Mongoose model named 'Book' using the book schema.
 const Book = mongoose.model("Book", bookSchema);
 
-// Export the Book mongoose model so that it can be imported and used in the controller.js file
+// Export the Book mongoose model so that it can be imported and used in controller.js.
 module.exports = Book;

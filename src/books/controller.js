@@ -1,4 +1,4 @@
-// Dependencies
+// External Dependencies - From third-party packages.
 const Book = require("./model"); // Import the Book model from the model.js file.
 
 /////////////////////////////////////////////
@@ -716,7 +716,7 @@ const deleteBookById = async (req, res) => {
 /////////////////////////////////////////////
 /////////////////////////////////////////////
 
-// Export the controller functions as an object so they can be imported and used in the routes.js file.
+// Export the controller functions as an object so they can be imported and used in routes.js.
 module.exports = {
   /////////////////////////////////////////////
   addBook,
