@@ -5,9 +5,8 @@ const { Router } = require("express");
 const bookRouter = Router();
 
 // Internal Module Imports - From files within the project.
-const Book = require("./model"); // From the model.js file
+
 const {
-  ///Controller Functions from controller.js///
   addBook,
   getAllOrSpecificBooks,
   deleteAllBooks,
@@ -31,7 +30,7 @@ const {
   updateBookById,
   deleteBookById,
   /////////////////////////////////////////////
-} = require("./controller");
+} = require("./controller"); //Controller Functions from controller.js
 
 // Routes
 /////////////////////////////////////////////
